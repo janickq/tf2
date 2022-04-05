@@ -74,9 +74,6 @@ class detector:
         input_tensor = input_tensor[tf.newaxis, ...]
         # input_tensor = np.expand_dims(image_np, 0)
         detections = detect_fn(input_tensor)
-        # All outputs are batches tensors.
-        # Convert to numpy arrays, and take index [0] to remove the batch dimension.
-        # We're only interested in the first num_detections.
         num_detections = int(detections.pop('num_detections'))
         detections = {key: value[0, :num_detections].numpy()
                         for key, value in detections.items()}
@@ -99,7 +96,6 @@ class detector:
                 xmin = int(max(1,(boxes[i][1] * imW)))
                 ymax = int(min(imH,(boxes[i][2] * imH)))
                 xmax = int(min(imW,(boxes[i][3] * imW)))
-                
                 cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
                 # Draw label
                 object_name = category_index[int(classes[i])]['name'] # Look up object name from "labels" array using class index

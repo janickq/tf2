@@ -15,11 +15,14 @@ from threading import Thread
 from WOB import WOB
 from cam import cam
 from detector import detector
-
+from comms import comms
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')   # Suppress Matplotlib warnings
+
+
+comm = comms.sd
 
 
 stream = cam(resolution=(640,480),framerate=30).start()
@@ -35,11 +38,11 @@ while True:
     
     image, item, count = detection(frame)
     
-    
     if count <= 12:
       image = cv2.resize(image,(600,600))
       cv2.imshow('Object Counter', image)
       print('no board found')
+      comm.putString('info', 'no board found')
     else:
       # image, max_area = getWOB(frame)
       image, max_area = WOB.getWOB(frame)
@@ -49,6 +52,9 @@ while True:
       # cv2.putText (image,'Total Detections : ' + str(count),(10,25),cv2.FONT_HERSHEY_SIMPLEX,1,(70,235,52),2,cv2.LINE_AA)
       cv2.imshow('Object Counter', image)
       print("max area:", max_area)
+      comm.putString('max area:', max_area)
+      comm.putStringArray('deliver', str(deliver))
+      comm.putStringArray('return', str(ret))
 
     if cv2.waitKey(1) == ord('q'):
         break
