@@ -22,8 +22,8 @@ import warnings
 warnings.filterwarnings('ignore')   # Suppress Matplotlib warnings
 
 
-comm = comms.sd
 
+src = cv2.imread("test_img/testimg1.jpg")
 
 stream = cam(resolution=(640,480),framerate=30).start()
 detection = detector.detect
@@ -34,15 +34,16 @@ while True:
 
     # Acquire frame and expand frame dimensions to have shape: [1, None, None, 3]
     # i.e. a single-column array, where each item in the column has the pixel RGB value
-    frame = stream.read()
-    
+    # frame = stream.read()
+    frame = WOB.process_image(src)
+    # print(comms.read_command)
     image, item, count = detection(frame)
     
     if count <= 12:
       image = cv2.resize(image,(600,600))
       cv2.imshow('Object Counter', image)
       print('no board found')
-      comm.putString('info', 'no board found')
+      comms.writeStr('info', 'no board found')
     else:
       # image, max_area = getWOB(frame)
       image, max_area = WOB.getWOB(frame)
@@ -52,9 +53,10 @@ while True:
       # cv2.putText (image,'Total Detections : ' + str(count),(10,25),cv2.FONT_HERSHEY_SIMPLEX,1,(70,235,52),2,cv2.LINE_AA)
       cv2.imshow('Object Counter', image)
       print("max area:", max_area)
-      comm.putString('max area:', max_area)
-      comm.putStringArray('deliver', str(deliver))
-      comm.putStringArray('return', str(ret))
+      
+      comms.writeStrArray("Deliver", str(deliver))
+      comms.writeStrArray("Return", str(ret))
+      comms.writeStr('max area:', max_area)
 
     if cv2.waitKey(1) == ord('q'):
         break

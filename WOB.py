@@ -4,10 +4,13 @@ import numpy as np
 import transform
 
 class WOB:
+    def process_image(image):
+        kernel = np.ones((6, 6), np.uint8)
+        binary_img = cv2.erode(image, kernel, iterations = 1)
+        return binary_img
     
     def getWOB(image):
-        cv2.destroyWindow("thresh")
-        cv2.destroyWindow("mask")
+        
         imagecopy = image.copy()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,41,11)
@@ -41,8 +44,10 @@ class WOB:
         result = transform.perspective_transform(mask, imagecopy, rect)
         result = result[ymin:ymax, xmin:xmax]
         cv2.imshow("mask", result)
-
+        cv2.destroyWindow("thresh")
+        cv2.destroyWindow("mask")
         result = cv2.resize(result,(1000,1000))
+        
         return result, max_area
     
     def sort_grid(image, items):
